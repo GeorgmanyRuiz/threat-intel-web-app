@@ -1,21 +1,21 @@
 import streamlit as st
 import requests
 
-# Page setup
+# Page configuration
 st.set_page_config(
     page_title="BXDA SOC - Threat Intel Portal",
     page_icon="🛡️",
     layout="centered"
 )
 
-# Custom Title & Header
+# App Title & Intro Header
 st.title("🛡️ Threat Intelligence & IP Lookup Portal")
 st.write("Real-time IP reputation and threat analysis engine powered by AbuseIPDB.")
 
-# Paste your active API key here
+# Read API Key securely from secrets, or fall back to your local testing string
 API_KEY = st.secrets.get("ABUSEIPDB_API_KEY", "1cb3bc16659bdf5f7910fd1558f86d3d0d6ef47b44f4a86c5d3f9bc86e2c8df5cb03d3643adbe8ac")
 
-# User Input Form
+# Input Form
 ip_input = st.text_input("Enter IP Address to Analyze:", "118.25.6.39")
 
 if st.button("Run Threat Analysis", type="primary"):
@@ -42,13 +42,13 @@ if st.button("Run Threat Analysis", type="primary"):
                 else:
                     st.success(f"✅ CLEAN / LOW RISK — Abuse Score: {score}%\n\nVerdict: Safe traffic / Known trusted IP.")
                 
-                # Key Metrics Display
+                # Metrics Display
                 col1, col2, col3 = st.columns(3)
                 col1.metric("ISP Provider", data.get('isp', 'N/A'))
                 col2.metric("Country", data.get('countryCode', 'N/A'))
                 col3.metric("Total Reports", data.get('totalReports', 0))
                 
-                # Detailed Properties Table
+                # Technical Payload Details
                 st.write("### Technical Details")
                 st.json({
                     "Domain": data.get('domain'),
@@ -60,3 +60,44 @@ if st.button("Run Threat Analysis", type="primary"):
                 st.error(f"API Error {res.status_code}: Please check your API key or IP address format.")
         except Exception as e:
             st.error(f"Connection error: {e}")
+
+# Divider before operational guide
+st.divider()
+
+# How to Use & Benefits Section
+st.write("## 📖 How to Use This Tool in Daily Operations")
+
+col_a, col_b = st.columns(2)
+
+with col_a:
+    st.write("### Operational Workflow")
+    st.markdown("""
+    1. **Ingest Indicators:** Retrieve suspicious remote IP addresses from firewall logs, auth failures, or phishing headers.
+    2. **Execute Triage:** Paste the target IP into the lookup field above and run the threat check.
+    3. **Evaluate Risk Verdict:**
+       - **Score > 50%:** High Risk. Immediately block IP at perimeter firewall or gateway.
+       - **Score 15%–50%:** Medium Risk. Flag for active monitoring and review host logs.
+       - **Score < 15%:** Low Risk. Verified safe or standard service provider.
+    """)
+
+with col_b:
+    st.write("### Enterprise Benefits")
+    st.markdown("""
+    - **Accelerates Triage Time:** Eliminates manual search site lookups for Tier 1/2 analysts during security investigations.
+    - **Data-Driven Blocking:** Provides real confidence scores before executing firewall blocks to avoid false positives.
+    - **Geographical & ISP Context:** Instantly reveals domain hosting, ASN details, and primary country of origin.
+    """)
+
+# Footer with GitHub link
+st.divider()
+st.markdown(
+    """
+    <div style="text-align: center; color: #888888; padding-top: 10px;">
+        Developed by <strong>Georgmany Ruiz</strong> | 
+        <a href="https://github.com/GeorgmanyRuiz" target="_blank" style="color: #4A90E2; text-decoration: none;">
+            📂 View GitHub Profile for More Projects
+        </a>
+    </div>
+    """, 
+    unsafe_allow_html=True
+)
