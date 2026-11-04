@@ -1,4 +1,5 @@
 import streamlit as st
+import os
 import requests
 
 # Page configuration
@@ -12,8 +13,15 @@ st.set_page_config(
 st.title("🛡️ Threat Intelligence & IP Lookup Portal")
 st.write("Real-time IP reputation and threat analysis engine powered by AbuseIPDB.")
 
-# Read API Key securely from secrets, or fall back to your local testing string
-API_KEY = st.secrets.get("ABUSEIPDB_API_KEY", "1cb3bc16659bdf5f7910fd1558f86d3d0d6ef47b44f4a86c5d3f9bc86e2c8df5cb03d3643adbe8ac")
+# API key is read ONLY from Streamlit secrets or the environment. Never hardcode a key here.
+try:
+    API_KEY = st.secrets.get("ABUSEIPDB_API_KEY")
+except Exception:
+    API_KEY = None
+API_KEY = API_KEY or os.environ.get("ABUSEIPDB_API_KEY")
+
+if not API_KEY:
+    st.warning("AbuseIPDB API key is not configured. Add ABUSEIPDB_API_KEY to .streamlit/secrets.toml before running a lookup.")
 
 # Input Form
 ip_input = st.text_input("Enter IP Address to Analyze:", "118.25.6.39")

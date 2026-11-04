@@ -1,4 +1,5 @@
 import sys
+import os
 import requests
 from rich.console import Console
 from rich.panel import Panel
@@ -7,12 +8,18 @@ from rich.table import Table
 # Initialize Rich console
 console = Console()
 
-API_KEY = "1cb3bc16659bdf5f7910fd1558f86d3d0d6ef47b44f4a86c5d3f9bc86e2c8df5cb03d3643adbe8ac" # Put your key here
+# API key is read ONLY from the environment. Never hardcode a key here.
+# Set it first, e.g.:  $env:ABUSEIPDB_API_KEY = "your-new-key"   (PowerShell)
+API_KEY = os.environ.get("ABUSEIPDB_API_KEY", "")
 
 def check_ip_reputation(ip_address):
     url = "https://api.abuseipdb.com/api/v2/check"
     headers = {'Accept': 'application/json', 'Key': API_KEY}
     params = {'ipAddress': ip_address, 'maxAgeInDays': '90'}
+
+    if not API_KEY:
+        console.print("[bold red][!] ABUSEIPDB_API_KEY is not set. Set it as an environment variable and try again.[/]")
+        return
 
     console.print(f"\n[bold cyan][*] Querying Threat Intelligence API for:[/] [yellow]{ip_address}[/]")
 

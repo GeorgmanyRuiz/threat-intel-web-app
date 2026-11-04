@@ -1,9 +1,11 @@
 import sys
+import os
 import requests
 import json
 
-# Replace with your actual AbuseIPDB API key
-API_KEY = "1cb3bc16659bdf5f7910fd1558f86d3d0d6ef47b44f4a86c5d3f9bc86e2c8df5cb03d3643adbe8ac"
+# API key is read ONLY from the environment. Never hardcode a key here.
+# Set it first, e.g.:  $env:ABUSEIPDB_API_KEY = "your-new-key"   (PowerShell)
+API_KEY = os.environ.get("ABUSEIPDB_API_KEY", "")
 
 def check_ip_reputation(ip_address):
     url = "https://api.abuseipdb.com/api/v2/check"
@@ -17,6 +19,10 @@ def check_ip_reputation(ip_address):
         'ipAddress': ip_address,
         'maxAgeInDays': '90'
     }
+
+    if not API_KEY:
+        print("[!] ABUSEIPDB_API_KEY is not set. Set it as an environment variable (or in .streamlit/secrets.toml) and try again.")
+        return
 
     print(f"\n[*] Querying AbuseIPDB Threat Intel API for IP: {ip_address}...\n")
     
